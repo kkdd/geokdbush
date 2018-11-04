@@ -8,7 +8,7 @@ var DEGREE = Math.PI / 180;
 var DEGREE2HALFCIRCLE = 1/180;
 
 function braunY(lat) {
-	return Math.tan(lat/2);
+    return Math.tan(lat/2);
 }
 
 console.log('=== geokdbush-braun benchmark ===');

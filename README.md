@@ -69,11 +69,11 @@ var nearest = geokdbush-braun.around(index, -119.7051, 34.4363, 1000);
 
 ```
 === geokdbush-braun benchmark ===
-index 138398 points: 83.246ms
-query 1000 closest: 4.536ms
-query 50000 closest: 36.637ms
-query all 138398: 76.881ms
-1000 random queries of 1 closest: 35.629ms
+index 138398 points: 82.429ms
+query 1000 closest: 4.702ms
+query 50000 closest: 38.234ms
+query all 138398: 82.912ms
+1000 random queries of 1 closest: 45.886ms
 
 === geokdbush benchmark ===
 index 138398 points: 80.405ms

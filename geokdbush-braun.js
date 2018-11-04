@@ -156,7 +156,7 @@ function boxDist(x, y, node) {
         distances.push(havDist(havSinDX, y, extremumY));
     }
 
-    return Math.max(...distances);
+    return Math.min(...distances);
 }
 
 function compareDist(a, b) {

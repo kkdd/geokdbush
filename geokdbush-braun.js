@@ -8,12 +8,11 @@ var earthRadius = 6371;
 var HALFCIRCLE = Math.PI;
 var DEGREE = Math.PI / 180;
 var DEGREE2HALFCIRCLE = 1/180;
-var CIRCLEINHALF = 2;
 
 function braunY(lat) {
     return Math.tan(lat/2);
 }
-// cosLat = (1-y**2)/(1+y**2), sinLat = 2*y/(1+y**2)
+// cosLat = (1-y**2)/(1+y**2), sinLat = 2*y/(1+y**2), tanLat = 2*y/(1-y**2)
 
 function around(index, lng, lat, maxResults, maxDistance, predicate) {
 
@@ -140,23 +139,14 @@ function boxDist(x, y, node) {
     }
 
     // query point is west or east of the bounding box;
-    var closestX = (minX - x + CIRCLEINHALF) % CIRCLEINHALF <= (x - maxX + CIRCLEINHALF) % CIRCLEINHALF ? minX : maxX;
-    var havSinDX = havSinX(x - closestX);
-
     // calculate distances to lower and higher bbox corners and extremum (if it's within this range);
     // one of the three distances will be the lower bound of great circle distance to bbox
-    var distances = [
-        havDist(havSinDX, y, minY),
-        havDist(havSinDX, y, maxY)
-    ];
-
-    // highest or lowest latitude of great circle
-    var extremumY = vertexY(y, havSinDX);        
-    if (extremumY > minY && extremumY < maxY) {
-        distances.push(havDist(havSinDX, y, extremumY));
-    }
-
-    return Math.min(...distances);
+	var havSinDX = Math.min(havSinX(x-minX), havSinX(x-maxX));
+	var extremumY = vertexY(y, havSinDX);
+	if (extremumY >= minY && extremumY <= maxY) {
+		return havDist(havSinDX, y, extremumY);
+	}
+	return Math.min(havDist(havSinDX, y, minY), havDist(havSinDX, y, maxY));
 }
 
 function compareDist(a, b) {
@@ -184,9 +174,11 @@ function greatCircleDist(havDist) {
     return 2*earthRadius*Math.asin(Math.sqrt(havDist));
 }
 
+// the (highest or lowest) latitude of the cross track point of a great circle and a meridian
 function vertexY(y, havSinDX) {
-    var tanLat = 2*y/(1-y*y)
-    var cosXDelta = 1 - 2 * havSinDX;
-    var w = tanLat / cosXDelta;
-    return w / (1 + Math.sqrt(1 + w*w));
+	var cosXDelta = 1 - 2 * havSinDX;
+	if (cosXDelta <= 0) return y>0?1:-1;
+	var tanLat = 2*y/(1-y*y)
+	var w = tanLat / cosXDelta;
+	return w / (1 + Math.sqrt(1 + w*w));
 }

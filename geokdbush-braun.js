@@ -151,11 +151,9 @@ function boxDist(x, y, node) {
     ];
 
     // highest or lowest latitude of great circle
-    if (havSinDX > 0.5) {
-        var extremumY = vertexY(y, havSinDX);        
-        if (extremumY > minY && extremumY < maxY) {
-            distances.push(havDist(havSinDX, y, extremumY));
-        }
+    var extremumY = vertexY(y, havSinDX);        
+    if (extremumY > minY && extremumY < maxY) {
+        distances.push(havDist(havSinDX, y, extremumY));
     }
 
     return Math.max(...distances);

@@ -141,12 +141,12 @@ function boxDist(x, y, node) {
     // query point is west or east of the bounding box;
     // calculate distances to lower and higher bbox corners and extremum (if it's within this range);
     // one of the three distances will be the lower bound of great circle distance to bbox
-	var havSinDX = Math.min(havSinX(x-minX), havSinX(x-maxX));
-	var extremumY = vertexY(y, havSinDX);
-	if (extremumY >= minY && extremumY <= maxY) {
-		return havDist(havSinDX, y, extremumY);
-	}
-	return Math.min(havDist(havSinDX, y, minY), havDist(havSinDX, y, maxY));
+    var havSinDX = Math.min(havSinX(x-minX), havSinX(x-maxX));
+    var extremumY = vertexY(y, havSinDX);
+    if (extremumY >= minY && extremumY <= maxY) {
+        return havDist(havSinDX, y, extremumY);
+    }
+    return Math.min(havDist(havSinDX, y, minY), havDist(havSinDX, y, maxY));
 }
 
 function compareDist(a, b) {

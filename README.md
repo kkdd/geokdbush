@@ -48,3 +48,42 @@ query 1000 closest | 4ms | 4ms | 155ms
 query 50000 closest | 31ms | 368ms | 155ms
 query all 138398 | 80ms | 29.7s | 155ms
 1000 queries of 1 | 55ms | 165ms | 18.4s
+
+
+### Performance 2
+
+(Macbook Pro 15 Core i7 4850HQ)
+
+```
+=== geokdbush-braun benchmark ===
+index 138398 points: 83.246ms
+query 1000 closest: 4.536ms
+query 50000 closest: 36.637ms
+query all 138398: 76.881ms
+1000 random queries of 1 closest: 35.629ms
+
+=== geokdbush benchmark ===
+index 138398 points: 80.405ms
+query 1000 closest: 4.693ms
+query 50000 closest: 42.159ms
+query all 138398: 86.634ms
+1000 random queries of 1 closest: 57.478ms
+
+=== vptree.js benchmark ===
+index 138398 points: 568.375ms
+query 1000 closest: 2.840ms
+query 50000 closest: 341.508ms
+query all 138398: 3092.165ms
+1000 random queries of 1 closest: 15.587ms
+
+=== sphere-knn benchmark ===
+index 138398 points: 1173.998ms
+query 1000 closest: 3.759ms
+query 50000 closest: 287.823ms
+query all 138398: 93790.312ms
+1000 random queries of 1 closest: 86.234ms
+
+=== naive benchmark ===
+query (sort) all 138398: 164.420ms
+1000 random queries of 1 closest: 20142.060ms
+```

@@ -52,6 +52,19 @@ query all 138398 | 80ms | 29.7s | 155ms
 
 ### Performance 2
 
+```js
+var kdbush = require('kdbush');
+var geokdbush-braun = require('geokdbush-braun');
+var DEGREE = Math.PI / 180;
+var DEGREE2HALFCIRCLE = 1/180;
+function braunY(lat) {
+	return Math.tan(lat/2);
+}
+
+var index = new KDBush(points, (p) => p.lon*DEGREE2HALFCIRCLE, (p) => braunY(p.lat*DEGREE));
+var nearest = geokdbush-braun.around(index, -119.7051, 34.4363, 1000);
+```
+
 (Macbook Pro 15 Core i7 4850HQ)
 
 ```

@@ -52,6 +52,8 @@ query all 138398 | 80ms | 29.7s | 155ms
 
 ### Performance 2
 
+geokdbush-braun
+
 ```js
 var kdbush = require('kdbush');
 var geokdbush-braun = require('geokdbush-braun');

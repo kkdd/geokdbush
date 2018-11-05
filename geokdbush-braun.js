@@ -18,10 +18,10 @@ function around(index, lng, lat, maxResults, maxDistance, predicate) {
 
     var x = lng*DEGREE2HALFCIRCLE, y = braunY(lat*DEGREE);
 
-    var havSinDX, maxHavDist = 1, result = [];
+    var haverSinDX, maxHaverSinDist = 1, result = [];
     if (maxResults === undefined) maxResults = Infinity;
     if (maxDistance !== undefined) {
-        maxHavDist = havSin(maxDistance/earthRadius);
+        maxHaverSinDist = haverSin(maxDistance/earthRadius);
     }
 
     // a distance-sorted priority queue that will contain both points and kd-tree nodes
@@ -50,10 +50,10 @@ function around(index, lng, lat, maxResults, maxDistance, predicate) {
             for (var i = left; i <= right; i++) {
                 item = index.points[index.ids[i]];
                 if (!predicate || predicate(item)) {
-                    havSinDX = havSinX(x - index.coords[2 * i]);
+                    haverSinDX = haverSinX(x - index.coords[2 * i]);
                     q.push({
                         item: item,
-                        dist: havSinDist(havSinDX, y, index.coords[2 * i + 1])
+                        dist: haverSinDist(haverSinDX, y, index.coords[2 * i + 1])
                     });
                 }
             }
@@ -68,10 +68,10 @@ function around(index, lng, lat, maxResults, maxDistance, predicate) {
             // add middle point to the queue
             item = index.points[index.ids[m]];
             if (!predicate || predicate(item)) {
-                havSinDX = havSinX(x - midX);
+                haverSinDX = haverSinX(x - midX);
                 q.push({
                     item: item,
-                    dist: havSinDist(havSinDX, y, midY)
+                    dist: haverSinDist(haverSinDX, y, midY)
                 });
             }
 
@@ -113,7 +113,7 @@ function around(index, lng, lat, maxResults, maxDistance, predicate) {
         // since each node's distance is a lower bound of distances to its children
         while (q.length && q.peek().item) {
             var candidate = q.pop();
-            if (candidate.dist > maxHavDist) return result;
+            if (candidate.dist > maxHaverSinDist) return result;
             result.push(candidate.item);
             if (result.length === maxResults) return result;
         }
@@ -134,20 +134,20 @@ function boxDist(x, y, node) {
 
     // query point is between minimum and maximum longitudes
     if (x >= minX && x <= maxX) {
-        if (y <= minY) return havSinDist(0, y, minY); // south
-        if (y >= maxY) return havSinDist(0, y, maxY); // north
+        if (y <= minY) return haverSinDist(0, y, minY); // south
+        if (y >= maxY) return haverSinDist(0, y, maxY); // north
         return 0; // inside the bbox
     }
 
     // query point is west or east of the bounding box;
     // calculate distances to lower and higher bbox corners and extremum (if it's within this range);
     // one of the three distances will be the lower bound of great circle distance to bbox
-    var havSinDX = Math.min(havSinX(x-minX), havSinX(x-maxX));
-    var extremumY = vertexY(y, havSinDX);
+    var haverSinDX = Math.min(haverSinX(x-minX), haverSinX(x-maxX));
+    var extremumY = vertexY(y, haverSinDX);
     if (extremumY >= minY && extremumY <= maxY) {
-        return havSinDist(havSinDX, y, extremumY);
+        return haverSinDist(haverSinDX, y, extremumY);
     }
-    return Math.min(havSinDist(havSinDX, y, minY), havSinDist(havSinDX, y, maxY));
+    return Math.min(haverSinDist(haverSinDX, y, minY), haverSinDist(haverSinDX, y, maxY));
 }
 
 function compareDist(a, b) {
@@ -158,30 +158,30 @@ function square(x) {
     return x * x;
 }
 
-function havSin(theta) {
+function haverSin(theta) {
     return square(Math.sin(theta/2));
 }
 
-function havSinX(x) {
-    return havSin(x*HALFCIRCLE);
+function haverSinX(x) {
+    return haverSin(x*HALFCIRCLE);
 }
 
 // Haversine formula
-function havSinDist(havSinDX, y1, y2) {
+function haverSinDist(haverSinDX, y1, y2) {
     var cosy1 = 1 - y1*y1;
     var cosy2 = 1 - y2*y2;
     var den = 1 / ((1 + y1*y1) * (1 + y2*y2));
-    var havSinDY = square(y1*cosy2 - y2*cosy1) * den;
-    return (havSinDX * cosy1 * cosy2 + havSinDY) * den;
+    var haverSinDY = square(y1*cosy2 - y2*cosy1) * den;
+    return (haverSinDX * cosy1 * cosy2 + haverSinDY) * den;
 }
 
-function greatCircleDist(havSinDist) {
-    return 2*earthRadius*Math.asin(Math.sqrt(havSinDist));
+function greatCircleDist(haverSinDist) {
+    return 2*earthRadius*Math.asin(Math.sqrt(haverSinDist));
 }
 
 // the (highest or lowest) latitude of the cross track point of a great circle and a meridian
-function vertexY(y, havSinDX) {
-    var cosXDelta = 1 - 2 * havSinDX;
+function vertexY(y, haverSinDX) {
+    var cosXDelta = 1 - 2 * haverSinDX;
     if (cosXDelta <= 0) return y>0?1:-1;
     var tanLat = 2*y/(1-y*y);
     var w = tanLat / cosXDelta;

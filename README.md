@@ -78,11 +78,11 @@ query all 138398: 82.912ms
 1000 random queries of 1 closest: 45.886ms
 
 === geokdbush benchmark ===
-index 138398 points: 80.405ms
-query 1000 closest: 4.693ms
-query 50000 closest: 42.159ms
-query all 138398: 86.634ms
-1000 random queries of 1 closest: 57.478ms
+index 138398 points: 80.480ms
+query 1000 closest: 4.714ms
+query 50000 closest: 40.261ms
+query all 138398: 84.967ms
+1000 random queries of 1 closest: 52.289ms
 
 === vptree.js benchmark ===
 index 138398 points: 568.375ms

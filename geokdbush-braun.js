@@ -53,7 +53,7 @@ function around(index, lng, lat, maxResults, maxDistance, predicate) {
                     havSinDX = havSinX(x - index.coords[2 * i]);
                     q.push({
                         item: item,
-                        dist: havDist(havSinDX, y, index.coords[2 * i + 1])
+                        dist: havSinDist(havSinDX, y, index.coords[2 * i + 1])
                     });
                 }
             }
@@ -71,7 +71,7 @@ function around(index, lng, lat, maxResults, maxDistance, predicate) {
                 havSinDX = havSinX(x - midX);
                 q.push({
                     item: item,
-                    dist: havDist(havSinDX, y, midY)
+                    dist: havSinDist(havSinDX, y, midY)
                 });
             }
 
@@ -134,8 +134,8 @@ function boxDist(x, y, node) {
 
     // query point is between minimum and maximum longitudes
     if (x >= minX && x <= maxX) {
-        if (y <= minY) return havDist(0, y, minY); // south
-        if (y >= maxY) return havDist(0, y, maxY); // north
+        if (y <= minY) return havSinDist(0, y, minY); // south
+        if (y >= maxY) return havSinDist(0, y, maxY); // north
         return 0; // inside the bbox
     }
 
@@ -145,9 +145,9 @@ function boxDist(x, y, node) {
     var havSinDX = Math.min(havSinX(x-minX), havSinX(x-maxX));
     var extremumY = vertexY(y, havSinDX);
     if (extremumY >= minY && extremumY <= maxY) {
-        return havDist(havSinDX, y, extremumY);
+        return havSinDist(havSinDX, y, extremumY);
     }
-    return Math.min(havDist(havSinDX, y, minY), havDist(havSinDX, y, maxY));
+    return Math.min(havSinDist(havSinDX, y, minY), havSinDist(havSinDX, y, maxY));
 }
 
 function compareDist(a, b) {
@@ -167,7 +167,7 @@ function havSinX(x) {
 }
 
 // Haversine formula
-function havDist(havSinDX, y1, y2) {
+function havSinDist(havSinDX, y1, y2) {
     var cosy1 = 1 - y1*y1;
     var cosy2 = 1 - y2*y2;
     var den = 1 / ((1 + y1*y1) * (1 + y2*y2));
@@ -175,8 +175,8 @@ function havDist(havSinDX, y1, y2) {
     return (havSinDX * cosy1 * cosy2 + havSinDY) * den;
 }
 
-function greatCircleDist(havDist) {
-    return 2*earthRadius*Math.asin(Math.sqrt(havDist));
+function greatCircleDist(havSinDist) {
+    return 2*earthRadius*Math.asin(Math.sqrt(havSinDist));
 }
 
 // the (highest or lowest) latitude of the cross track point of a great circle and a meridian

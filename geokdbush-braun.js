@@ -12,7 +12,7 @@ var DEGREE2HALFCIRCLE = 1/180;
 function braunY(lat) {
     return Math.tan(lat/2);
 }
-// cosLat = (1-y**2)/(1+y**2), sinLat = 2*y/(1+y**2), tanLat = 2*y/(1-y**2)
+// y = braunY(lat), cosLat = (1-y**2)/(1+y**2), sinLat = 2*y/(1+y**2), tanLat = 2*y/(1-y**2)
 
 function around(index, lng, lat, maxResults, maxDistance, predicate) {
 
@@ -40,6 +40,7 @@ function around(index, lng, lat, maxResults, maxDistance, predicate) {
     };
 
     while (node) {
+        var item;
         var right = node.right;
         var left = node.left;
 
@@ -47,7 +48,7 @@ function around(index, lng, lat, maxResults, maxDistance, predicate) {
 
             // add all points of the leaf node to the queue
             for (var i = left; i <= right; i++) {
-                var item = index.points[index.ids[i]];
+                item = index.points[index.ids[i]];
                 if (!predicate || predicate(item)) {
                     havSinDX = havSinX(x - index.coords[2 * i]);
                     q.push({
@@ -153,8 +154,12 @@ function compareDist(a, b) {
     return a.dist - b.dist;
 }
 
+function square(x) {
+    return x * x;
+}
+
 function havSin(theta) {
-    return Math.sin(theta/2)**2;
+    return square(Math.sin(theta/2));
 }
 
 function havSinX(x) {
@@ -166,7 +171,7 @@ function havDist(havSinDX, y1, y2) {
     var cosy1 = 1 - y1*y1;
     var cosy2 = 1 - y2*y2;
     var den = 1 / ((1 + y1*y1) * (1 + y2*y2));
-    var havSinDY = (y1*cosy2-y2*cosy1)**2 * den;
+    var havSinDY = square(y1*cosy2 - y2*cosy1) * den;
     return (havSinDX * cosy1 * cosy2 + havSinDY) * den;
 }
 
@@ -176,9 +181,9 @@ function greatCircleDist(havDist) {
 
 // the (highest or lowest) latitude of the cross track point of a great circle and a meridian
 function vertexY(y, havSinDX) {
-	var cosXDelta = 1 - 2 * havSinDX;
-	if (cosXDelta <= 0) return y>0?1:-1;
-	var tanLat = 2*y/(1-y*y)
-	var w = tanLat / cosXDelta;
-	return w / (1 + Math.sqrt(1 + w*w));
+    var cosXDelta = 1 - 2 * havSinDX;
+    if (cosXDelta <= 0) return y>0?1:-1;
+    var tanLat = 2*y/(1-y*y);
+    var w = tanLat / cosXDelta;
+    return w / (1 + Math.sqrt(1 + w*w)); // = braunY(atan(w))
 }

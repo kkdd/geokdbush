@@ -6,7 +6,6 @@ exports.around = around;
 exports.distance = distance;
 
 var earthRadius = 6371;
-var earthCircumference = 40007;
 var rad = Math.PI / 180;
 
 function around(index, lng, lat, maxResults, maxDistance, predicate) {

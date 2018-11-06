@@ -1,8 +1,8 @@
 'use strict';
 
 var tinyqueue = require('tinyqueue');
-
 exports.around = around;
+exports.distance = distance;
 
 var earthRadius = 6371;
 var HALFCIRCLE = Math.PI;
@@ -18,7 +18,7 @@ function around(index, lng, lat, maxResults, maxDistance, predicate) {
 
     var x = lng*DEGREE2HALFCIRCLE, y = braunY(lat*DEGREE);
 
-    var haverSinDX, maxHaverSinDist = 1, result = [];
+    var maxHaverSinDist = 1, result = [];
     if (maxResults === undefined) maxResults = Infinity;
     if (maxDistance !== undefined) {
         maxHaverSinDist = haverSin(maxDistance/earthRadius);
@@ -40,7 +40,7 @@ function around(index, lng, lat, maxResults, maxDistance, predicate) {
     };
 
     while (node) {
-        var item;
+        var item, haverSinDX;
         var right = node.right;
         var left = node.left;
 
@@ -61,7 +61,6 @@ function around(index, lng, lat, maxResults, maxDistance, predicate) {
         } else { // not a leaf node (has child nodes)
 
             var m = (left + right) >> 1; // middle index
-
             var midX = index.coords[2 * m];
             var midY = index.coords[2 * m + 1];
 
@@ -127,6 +126,7 @@ function around(index, lng, lat, maxResults, maxDistance, predicate) {
 
 // lower bound for distance from a location to points inside a bounding box
 function boxDist(x, y, node) {
+    var queryY;
     var minX = node.minX;
     var maxX = node.maxX;
     var minY = node.minY;
@@ -134,18 +134,17 @@ function boxDist(x, y, node) {
 
     // query point is between minimum and maximum longitudes
     if (x >= minX && x <= maxX) {
-        if (y <= minY) return haverSinDist(0, y, minY); // south
-        if (y >= maxY) return haverSinDist(0, y, maxY); // north
-        return 0; // inside the bbox
+        queryY = (y < minY)?minY:((y > maxY)?maxY:y);
+        return haverSinDist(0, y, queryY);
     }
 
     // query point is west or east of the bounding box;
     // calculate distances to lower and higher bbox corners and extremum (if it's within this range);
     // one of the three distances will be the lower bound of great circle distance to bbox
     var haverSinDX = Math.min(haverSinX(x-minX), haverSinX(x-maxX));
-    var extremumY = vertexY(y, haverSinDX);
-    if (extremumY >= minY && extremumY <= maxY) {
-        return haverSinDist(haverSinDX, y, extremumY);
+    queryY = vertexY(y, haverSinDX);
+    if (queryY >= minY && queryY <= maxY) {
+        return haverSinDist(haverSinDX, y, queryY);
     }
     return Math.min(haverSinDist(haverSinDX, y, minY), haverSinDist(haverSinDX, y, maxY));
 }
@@ -168,15 +167,21 @@ function haverSinX(x) {
 
 // Haversine formula
 function haverSinDist(haverSinDX, y1, y2) {
-    var cosy1 = 1 - y1*y1;
-    var cosy2 = 1 - y2*y2;
-    var den = 1 / ((1 + y1*y1) * (1 + y2*y2));
-    var haverSinDY = square(y1*cosy2 - y2*cosy1) * den;
-    return (haverSinDX * cosy1 * cosy2 + haverSinDY) * den;
+    var den = (1 + y1*y1) * (1 + y2*y2);
+    var haverSinDY = square(y1 - y2);
+    return (haverSinDX * (1 - y1*y1) * (1 - y2*y2) + haverSinDY) / den;
 }
 
-function greatCircleDist(haverSinDist) {
-    return 2*earthRadius*Math.asin(Math.sqrt(haverSinDist));
+function greatCircleDist(haverSinDX, y1, y2) {
+    var hsdist = haverSinDist(haverSinDX, y1, y2);
+    return 2*earthRadius*Math.asin(Math.sqrt(hsdist));
+}
+
+function distance(lon1, lat1, lon2, lat2) {
+    var y1 = braunY(lat1*DEGREE);
+    var y2 = braunY(lat2*DEGREE);
+    var haverSinDX = haverSin((lon1 - lon2) * DEGREE);
+    return greatCircleDist(haverSinDX, y1, y2);
 }
 
 // the (highest or lowest) latitude of the cross track point of a great circle and a meridian

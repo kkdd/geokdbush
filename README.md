@@ -60,7 +60,7 @@ var geokdbush-braun = require('geokdbush-braun');
 var DEGREE = Math.PI / 180;
 var DEGREE2HALFCIRCLE = 1/180;
 function braunY(lat) {
-	return Math.tan(lat/2);
+    return Math.tan(lat/2);
 }
 
 var index = new KDBush(points, (p) => p.lon*DEGREE2HALFCIRCLE, (p) => braunY(p.lat*DEGREE));
